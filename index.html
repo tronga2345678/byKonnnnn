@@ -2,33 +2,34 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>by Tọnggg</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tỏ Tình Web</title>
   <style>
     body {
-      text-align: center;
+      margin: 0;
+      padding: 0;
       font-family: 'Segoe UI', sans-serif;
       background-color: #ffe6f0;
-      margin: 0;
-      padding: 30px;
       overflow: hidden;
+    }
+
+    .container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      text-align: center;
+      padding-top: 50px;
     }
 
     h1 {
       color: #d63384;
-      transition: all 0.3s ease;
       font-size: 6vw;
-    }
-
-    .btn-container {
-      margin-top: 20px;
+      margin: 0;
     }
 
     button {
       padding: 15px 25px;
       font-size: 5vw;
-      max-width: 300px;
-      width: 80%;
       border: none;
       border-radius: 10px;
       cursor: pointer;
@@ -43,13 +44,24 @@
     }
 
     #no-btn {
+      position: absolute;
       background-color: #dc3545;
       color: white;
-      position: absolute;
-      transition: left 0.3s, top 0.3s;
+      top: 300px;
+      left: 100px;
+      z-index: 10;
     }
 
     #love-message {
+      margin-top: 30px;
+      font-size: 6vw;
+      color: #ff1493;
+      font-weight: bold;
+      display: none;
+    }
+
+    #meme-gif {
+      position: fixed;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
@@ -72,35 +84,26 @@
   </style>
 </head>
 <body>
-
-  <h1>Mài bị khờ phải honggg ? 🐷</h1>
-
-  <div class="btn-container">
-    <button id="yes-btn">Đúng ờiiii !!!! </button>
-  </div>
-
-  <div class="btn-container">
+  <div class="container" id="main-container">
+    <h1 id="main-title">Mài bị khờ phải honggg ? 🐷</h1>
+    <button id="yes-btn">Đúng ờiiii !!!!</button>
     <button id="no-btn">Hongggg 🙅‍</button>
+    <div id="love-message">khờ khờ nhưng mà cũn cũn dễ thương, hẹ hẹ hẹ 💖</div>
+    <img id="meme-gif" src="https://media.tenor.com/1SXIh2VpnhQAAAAi/cat.gif" />
   </div>
-
-  <div id="love-message">khờ khờ nhưng mà cũn cũn dễ thương, hẹ hẹ hẹ 💖</div>
-  <img id="meme-gif" src="https://media.tenor.com/1SXIh2VpnhQAAAAi/cat.gif" alt="meme chúc mừng" />
 
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-
   <script>
     const noBtn = document.getElementById("no-btn");
     const yesBtn = document.getElementById("yes-btn");
     const loveMessage = document.getElementById("love-message");
     const memeGif = document.getElementById("meme-gif");
-    const titleElement = document.querySelector("h1");
+    const titleElement = document.getElementById("main-title");
+    const container = document.getElementById("main-container");
 
-    let scale = 1.0;
-    const maxScale = 1.6;
     let hoverCount = 0;
-    let lastX = 0, lastY = 0;
-    let isMoving = false;
-
+    let scale = 1;
+    const maxScale = 1.6;
     const titles = [
       "Xạo hãaaa",
       "Tin chuẩn không vậy?",
@@ -109,35 +112,38 @@
       "Hong từ chối được nữa đâuuu!!! Mài bị khờ nhaaa"
     ];
 
-    function getNewPosition(btn) {
-      const padding = 60;
-      const maxX = window.innerWidth - btn.offsetWidth - padding;
-      const maxY = window.innerHeight - btn.offsetHeight - padding;
+    function isOverlap(rect1, rect2) {
+      return !(rect1.right < rect2.left ||
+               rect1.left > rect2.right ||
+               rect1.bottom < rect2.top ||
+               rect1.top > rect2.bottom);
+    }
 
-      let newX, newY, distance;
-      do {
-        newX = Math.floor(Math.random() * maxX);
-        newY = Math.floor(Math.random() * maxY);
-        distance = Math.sqrt(Math.pow(newX - lastX, 2) + Math.pow(newY - lastY, 2));
-      } while (distance < 80);
+    function getNewPosition() {
+      const containerRect = container.getBoundingClientRect();
+      const yesRect = yesBtn.getBoundingClientRect();
+      const noRect = noBtn.getBoundingClientRect();
+      const padding = 20;
+      let tries = 0;
 
-      lastX = newX;
-      lastY = newY;
+      while (tries < 100) {
+        const x = Math.random() * (containerRect.width - noRect.width - padding);
+        const y = Math.random() * (containerRect.height - noRect.height - padding);
 
-      return { x: newX, y: newY };
+        noBtn.style.left = `${x}px`;
+        noBtn.style.top = `${y}px`;
+
+        const newRect = noBtn.getBoundingClientRect();
+        if (!isOverlap(newRect, yesRect)) break;
+
+        tries++;
+      }
     }
 
     noBtn.addEventListener("mouseover", () => {
-      if (isMoving) return;
-
-      isMoving = true;
-      noBtn.style.pointerEvents = "none";
-
       if (hoverCount < titles.length) {
         titleElement.textContent = titles[hoverCount];
-      }
-
-      if (hoverCount >= titles.length) {
+      } else {
         noBtn.style.display = "none";
         return;
       }
@@ -147,9 +153,7 @@
       noBtn.classList.add("wiggle");
       setTimeout(() => noBtn.classList.remove("wiggle"), 300);
 
-      const pos = getNewPosition(noBtn);
-      noBtn.style.left = `${pos.x}px`;
-      noBtn.style.top = `${pos.y}px`;
+      getNewPosition();
 
       if (scale < maxScale) {
         scale += 0.15;
@@ -157,29 +161,21 @@
       }
 
       const colors = ['#ff6b6b', '#ffb347', '#6bc5ff', '#c56bff'];
-      const randColor = colors[Math.floor(Math.random() * colors.length)];
-      noBtn.style.backgroundColor = randColor;
-
-      setTimeout(() => {
-        isMoving = false;
-        noBtn.style.pointerEvents = "auto";
-      }, 350);
+      noBtn.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
     });
 
     yesBtn.addEventListener("click", () => {
       loveMessage.style.display = "block";
       memeGif.style.display = "block";
+      yesBtn.style.display = "none";
+      noBtn.style.display = "none";
 
       confetti({
         particleCount: 150,
         spread: 100,
         origin: { y: 0.6 },
       });
-
-      yesBtn.style.display = "none";
-      noBtn.style.display = "none";
     });
   </script>
-
 </body>
 </html>
