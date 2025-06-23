@@ -47,9 +47,9 @@
       position: absolute;
       background-color: #dc3545;
       color: white;
+      z-index: 10;
       top: 300px;
       left: 100px;
-      z-index: 10;
     }
 
     #love-message {
@@ -105,6 +105,7 @@
     let scale = 1;
     const maxScale = 1.6;
     let isMoving = false;
+
     const titles = [
       "Xạo hãaaa",
       "Tin chuẩn không vậy?",
@@ -124,15 +125,17 @@
       const containerRect = container.getBoundingClientRect();
       const yesRect = yesBtn.getBoundingClientRect();
       const noRect = noBtn.getBoundingClientRect();
-      const padding = 20;
       let tries = 0;
 
-      const maxX = containerRect.width - noRect.width - padding;
-      const maxY = containerRect.height - noRect.height - padding;
+      // Giới hạn vùng nhảy: từ 10% đến 90% chiều ngang, và từ 30% đến 85% chiều cao
+      const minX = containerRect.width * 0.1;
+      const maxX = containerRect.width * 0.9 - noRect.width;
+      const minY = containerRect.height * 0.3;
+      const maxY = containerRect.height * 0.85 - noRect.height;
 
       while (tries < 100) {
-        const x = padding + Math.random() * (maxX - padding);
-        const y = padding + Math.random() * (maxY - padding);
+        const x = Math.random() * (maxX - minX) + minX;
+        const y = Math.random() * (maxY - minY) + minY;
 
         noBtn.style.left = `${x}px`;
         noBtn.style.top = `${y}px`;
