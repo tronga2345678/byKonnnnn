@@ -23,13 +23,13 @@
 
     h1 {
       color: #d63384;
-      font-size: 6vw;
+      font-size: clamp(24px, 6vw, 48px);
       margin: 0;
     }
 
     button {
       padding: 15px 25px;
-      font-size: 5vw;
+      font-size: clamp(16px, 5vw, 32px);
       border: none;
       border-radius: 10px;
       cursor: pointer;
@@ -54,7 +54,7 @@
 
     #love-message {
       margin-top: 30px;
-      font-size: 6vw;
+      font-size: clamp(20px, 5vw, 42px);
       color: #ff1493;
       font-weight: bold;
       display: none;
@@ -104,6 +104,7 @@
     let hoverCount = 0;
     let scale = 1;
     const maxScale = 1.6;
+    let isMoving = false;
     const titles = [
       "Xạo hãaaa",
       "Tin chuẩn không vậy?",
@@ -140,7 +141,11 @@
       }
     }
 
-    noBtn.addEventListener("mouseover", () => {
+    function moveNoButton() {
+      if (isMoving) return;
+      isMoving = true;
+      noBtn.style.pointerEvents = "none";
+
       if (hoverCount < titles.length) {
         titleElement.textContent = titles[hoverCount];
       } else {
@@ -162,7 +167,16 @@
 
       const colors = ['#ff6b6b', '#ffb347', '#6bc5ff', '#c56bff'];
       noBtn.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-    });
+
+      setTimeout(() => {
+        noBtn.style.pointerEvents = "auto";
+        isMoving = false;
+      }, 400);
+    }
+
+    // Hỗ trợ cả máy tính lẫn điện thoại
+    noBtn.addEventListener("mouseenter", moveNoButton);
+    noBtn.addEventListener("touchstart", moveNoButton);
 
     yesBtn.addEventListener("click", () => {
       loveMessage.style.display = "block";
